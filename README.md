@@ -7,7 +7,7 @@ Unofficial player and playlist generator for DI.FM.
 
 main.py
 
-The player requires VLC media player. Download the correct version for your system (x86 vs x64)
+The player requires VLC media player (python-vlc). Download the correct version for your system (x86 vs x64)
 
 ![image](https://user-images.githubusercontent.com/1930031/135164286-b39f839b-a660-48db-a701-39fb21d754f5.png)
 
