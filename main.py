@@ -11,7 +11,7 @@ current_track = ""
 current_track_index = -1
 current_tracklist = {}
 debug_message = ""
-debug = False
+debug = True
 quit = False
 player = None
 stop_input = False
@@ -28,32 +28,30 @@ def update_current_tracks():
     global current_track_index
     global current_tracklist
     current_tracklist = {}
+    current_track_index = -1
     for n in range(1):
         for track in difm.get_tracks_by_channel_id(current_channel_id):
             current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
-    current_track_index = -1
 
 def play_next_track(event=None):
     global player
     global current_track
     global current_track_index
     current_track_index += 1
-    if current_track_index <= len(current_tracklist): 
-        if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
-            update_current_tracks()
-            current_track_index += 1
-        if player != None:
-            if event == None:
-                player.stop_audio()
-        del player
-        player = audio.Player()
-        player.set_event_callback(play_next_track)
-        player.play_audio(list(current_tracklist.items())[current_track_index][1])
-        current_track = list(current_tracklist.items())[current_track_index][0]
-    else:
-        del player
-        global stop_input
-        stop_input = True
+    if current_track_index >= len(current_tracklist): 
+        global debug_message 
+        current_track_index += 1   
+    if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
+        update_current_tracks()
+        current_track_index += 1
+    if player != None:
+        if event == None:
+            player.stop_audio()
+    del player
+    player = audio.Player()
+    player.set_event_callback(play_next_track)
+    player.play_audio(list(current_tracklist.items())[current_track_index][1])
+    current_track = list(current_tracklist.items())[current_track_index][0]
 
 def play_previous_track():
     global player
