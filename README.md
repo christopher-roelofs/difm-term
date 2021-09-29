@@ -1,5 +1,5 @@
 # difm-term
-Unofficial player and playlist generator for DI.FM. 
+Unofficial player and playlist generator for DI.FM. This only has access to quality/channels available to guests.
 
 **If you like DI.FM, sign up for a premium account!**
 
