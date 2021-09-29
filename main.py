@@ -6,6 +6,7 @@ import audio
 current_page = 1
 current_channel = None
 current_channel_id = None
+volume = None
 current_track = ""
 current_track_index = -1
 current_tracklist = {}
@@ -25,9 +26,11 @@ def screen_clear():
 
 def update_current_tracks():
     global current_track_index
+    global current_tracklist
+    current_tracklist = {}
     for n in range(1):
-        for track in difm.get_tracks_by_channel_id(id):
-            [track["track"]] = "https:" + track['content']["assets"][0]["url"]
+        for track in difm.get_tracks_by_channel_id(current_channel_id):
+            current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
     current_track_index = -1
 
 def play_next_track(event=None):
@@ -35,13 +38,14 @@ def play_next_track(event=None):
     global current_track
     global current_track_index
     current_track_index += 1
-    if current_track_index < len(current_tracklist): 
+    if current_track_index <= len(current_tracklist): 
         if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
             update_current_tracks()
             current_track_index += 1
         if player != None:
-            player.stop_audio()
-            del player
+            if event == None:
+                player.stop_audio()
+        del player
         player = audio.Player()
         player.set_event_callback(play_next_track)
         player.play_audio(list(current_tracklist.items())[current_track_index][1])
@@ -73,11 +77,12 @@ def player_menu():
     print("--------------------------------")
     print(f"Channel: {current_channel}")
     print(f"Status: {player.get_status()}")
+    print(f"Volume: {player.get_volume()}")
     if debug:
         print(f"Msg: {debug_message}")
     print("--------------------------------")
-    print("P: Play/Pause - S: Stop - Q: Back - N: Next Track - R: Previous")
-    val = input()
+    print("P: Play/Pause | S: Stop | Q: Back | N: Next Track | R: Previous | V: Volume")
+    val = input().lower()
     if val == "q":
         player.stop_audio()
         stop_input = True
@@ -91,6 +96,12 @@ def player_menu():
         play_next_track()
     if val == "b":
         player.stop_audio()
+    if val == "v":
+        volume = input("Enter new volume: ")
+        try:
+            player.set_volume(int(volume))
+        except:
+            pass
 
 
 
@@ -116,7 +127,7 @@ def main_menu():
         print(f"{index}: {channel['name']}")
         index += 1
     print("--------------------------------")
-    print("N: Next Page - P: Previous Page - Q: Quit")
+    print("N: Next Page | P: Previous Page | Q: Quit")
     print("--------------------------------")
     while not stop_main_menu:
         val = input()
@@ -146,6 +157,7 @@ def main_menu():
             while not stop_input:
                 player_menu()
                 sleep(1)
+                
         else:
             stop_main_menu = True
 

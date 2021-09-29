@@ -7,13 +7,19 @@ from vlc import EventType, Media, MediaPlayer, MediaParseFlag, Meta
 
 class Player:
     def __init__(self):
-        self.instance = vlc.Instance("--quiet")
+        self.instance = vlc.Instance("--quiet") # --verbose 2
         self.player = self.instance.media_player_new()
         self.listPlayer = self.instance.media_list_player_new()
         self.status = "Not Playing"
 
     def get_status(self):
         return self.status
+
+    def get_volume(self):
+        return self.player.audio_get_volume()
+    
+    def set_volume(self,volume):
+        return self.player.audio_set_volume(volume)
 
     def set_event_callback(self, callback):
         events = self.player.event_manager()
