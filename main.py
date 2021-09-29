@@ -81,7 +81,7 @@ def player_menu():
     if debug:
         print(f"Msg: {debug_message}")
     print("--------------------------------")
-    print("P: Play/Pause | S: Stop | Q: Back | N: Next Track | R: Previous | V: Volume")
+    print("P: Play/Pause | S: Stop | Q: Back | N: Next | R: Previous | V: Volume")
     val = input().lower()
     if val == "q":
         player.stop_audio()
