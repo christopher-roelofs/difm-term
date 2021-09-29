@@ -1,8 +1,4 @@
 import vlc
-import time
-import threading
-import os
-from vlc import EventType, Media, MediaPlayer, MediaParseFlag, Meta
 
 
 class Player:
