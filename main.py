@@ -81,7 +81,7 @@ def player_menu():
     if debug:
         print(f"Msg: {debug_message}")
     print("--------------------------------")
-    print("P: Play/Pause | S: Stop | Q: Back | N: Next | R: Previous | V: Volume")
+    print("P: Play/Pause | S: Stop | Q: Back | N: Next | R: Previous | V: Volume | D: Download Track")
     val = input().lower()
     if val == "q":
         player.stop_audio()
@@ -102,6 +102,8 @@ def player_menu():
             player.set_volume(int(volume))
         except:
             pass
+    if val == "d":
+        difm.download_track(list(current_tracklist.items())[current_track_index][0],list(current_tracklist.items())[current_track_index][1])
 
 
 
