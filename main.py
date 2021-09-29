@@ -76,8 +76,8 @@ def player_menu():
     screen_clear()
     print("--------------------------------")
     print(f"Channel: {current_channel}")
-    print(f"Status: {player.get_status()}")
-    print(f"Volume: {player.get_volume()}")
+    print(f"Status:  {player.get_status()}")
+    print(f"Volume:  {player.get_volume()}")
     if debug:
         print(f"Msg: {debug_message}")
     print("--------------------------------")
