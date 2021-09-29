@@ -11,7 +11,8 @@ The player requires VLC media player (python-vlc). Download the correct version 
 
 ![image](https://user-images.githubusercontent.com/1930031/135164286-b39f839b-a660-48db-a701-39fb21d754f5.png)
 
-![image](https://user-images.githubusercontent.com/1930031/135164358-79cd5dcd-8663-419e-be42-e9504a1ec9ae.png)
+![image](https://user-images.githubusercontent.com/1930031/135300862-846b1c11-3d27-4022-b5f1-c54e25dc7b88.png)
+
 
 
 **Playlist Generator**
