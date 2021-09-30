@@ -7,11 +7,15 @@ import datetime
 from datetime import timezone
 import os
 
-
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
+    "Accept-Encoding": "*",
+    "Connection": "keep-alive"
+}
 
 s = requests.Session()
 # There is probbaly a better way to get this that also allows for using credentials.
-response = s.post("https://www.di.fm/login")
+response = s.post("https://www.di.fm/login",headers=headers)
 result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
 
 user = result["user"]
@@ -47,14 +51,14 @@ def get_channels():
 def download_track(track,url):
    if not  os.path.exists("tracks"):
       os.makedirs('tracks')
-   r = requests.get(url, allow_redirects=True)
+   r = requests.get(url, allow_redirects=True,headers=headers)
    open(os.path.join("tracks",f"{track}.mp4"), 'wb').write(r.content)
 
 
 def get_channel_by_id(id):
    epoch = time.time()
    channel_url = f'https://www.di.fm/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   channel_repsonse = s.get(channel_url)
+   channel_repsonse = s.get(channel_url,headers=headers)
    channel_details = json.loads(channel_repsonse.text)
    return channel_details
 
@@ -62,15 +66,11 @@ def get_tracks_by_channel_id(id):
    tracks = []
    epoch = time.time()
    channel_url = f'https://www.di.fm/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   for n in range(4):
-      channel_repsonse = s.get(channel_url)
-      for track in json.loads(channel_repsonse.text)["tracks"]:
-         tracks.append(track)
+   channel_repsonse = s.get(channel_url,headers=headers)
+   for track in json.loads(channel_repsonse.text)["tracks"]:
+      tracks.append(track)
    return tracks
 
 
 if __name__ == "__main__":
-   tracks = get_tracks_by_channel_id(1)
-   url = "https:" + tracks[0]["content"]["assets"][0]["url"]
-   name = tracks[0]["track"] + ".mp4"
-   download_track(name,url)
+   print(json.dumps(get_channels()))

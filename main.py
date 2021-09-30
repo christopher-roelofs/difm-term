@@ -1,3 +1,4 @@
+from logging import exception
 from time import sleep
 import difm
 import os
@@ -34,6 +35,7 @@ def update_current_tracks():
             current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
 
 def play_next_track(event=None):
+    global debug_message
     global player
     global current_track
     global current_track_index
@@ -71,15 +73,16 @@ def play_previous_track():
 
 def player_menu():
     global stop_input
+    global debug_message
     screen_clear()
     print("--------------------------------")
     print(f"Channel: {current_channel}")
     print(f"Status:  {player.get_status()}")
     print(f"Volume:  {player.get_volume()}")
     if debug:
-        print(f"Msg: {debug_message}")
+        print(f"Msg:     {debug_message}")
     print("--------------------------------")
-    print("P: Play/Pause | S: Stop | Q: Back | N: Next | R: Previous | V: Volume | D: Download Track")
+    print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back | V: Volume | D: Download Track")
     val = input().lower()
     if val == "q":
         player.stop_audio()
@@ -95,7 +98,7 @@ def player_menu():
     if val == "b":
         player.stop_audio()
     if val == "v":
-        volume = input("Enter new volume: ")
+        volume = input("Volume: ")
         try:
             player.set_volume(int(volume))
         except:
@@ -106,6 +109,7 @@ def player_menu():
 
 
 def main_menu():
+    global debug_message
     global current_page
     global current_channel
     global current_channel_id
@@ -143,20 +147,23 @@ def main_menu():
                 stop_main_menu = True
                 quit = True
         elif val in "0123456789":
-            stop_main_menu = True
-            channel = difm.channels[max - 10:max][int(val)]
-            id = channel["id"]
-            current_channel = channel["name"]
-            current_channel_id = id
-            current_tracklist = {}
-            for n in range(1):
-                for track in difm.get_tracks_by_channel_id(id):
-                    current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
-            current_track_index = -1
-            play_next_track()
-            while not stop_input:
-                player_menu()
-                sleep(1)
+            try:
+                stop_main_menu = True
+                channel = difm.channels[max - 10:max][int(val)]
+                id = channel["id"]
+                current_channel = channel["name"]
+                current_channel_id = id
+                current_tracklist = {}
+                for n in range(1):
+                    for track in difm.get_tracks_by_channel_id(id):
+                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+                current_track_index = -1
+                play_next_track()
+                while not stop_input:
+                    player_menu()
+                    sleep(1)
+            except Exception as e:
+                debug_message = e   
                 
         else:
             stop_main_menu = True

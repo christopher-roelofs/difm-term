@@ -51,7 +51,7 @@ def main_menu():
             print(f"Generating pls file for {channel['name']}...")
             index = 0
             pls_tracks = {}
-            for n in range(1):
+            for n in range(4):
                 tracks = difm.get_tracks_by_channel_id(id)
                 for track in tracks:
                     pls_tracks[track["track"]] = f'https:{track["content"]["assets"][0]["url"]}'
