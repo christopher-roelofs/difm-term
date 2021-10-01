@@ -7,6 +7,8 @@ import datetime
 from datetime import timezone
 import os
 
+from requests.api import head, request
+
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
     "Accept-Encoding": "*",
@@ -48,12 +50,12 @@ def is_url_expired(url):
 def get_channels():
    return channels
 
-def download_track(track,url):
-   if not  os.path.exists("tracks"):
-      os.makedirs('tracks')
+def download_track(track,channel,url):
+   path = os.path.join("tracks",channel)
+   if not os.path.exists(path):
+      os.makedirs(path)
    r = requests.get(url, allow_redirects=True,headers=headers)
-   open(os.path.join("tracks",f"{track}.mp4"), 'wb').write(r.content)
-
+   open(os.path.join(path,f"{track}.mp4"), 'wb').write(r.content)
 
 def get_channel_by_id(id):
    epoch = time.time()
@@ -73,4 +75,4 @@ def get_tracks_by_channel_id(id):
 
 
 if __name__ == "__main__":
-   print(json.dumps(get_channels()))
+   pass

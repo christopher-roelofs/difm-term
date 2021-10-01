@@ -131,3 +131,4 @@ release/
 .vscode
 playlists/
 tracks/
+favorites.json

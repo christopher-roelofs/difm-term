@@ -12,7 +12,11 @@ class Player:
         return self.status
 
     def get_volume(self):
-        return self.player.audio_get_volume()
+        volume = self.player.audio_get_volume()
+        if int(volume) < 0:
+            return "0"
+        else:
+            return volume
     
     def set_volume(self,volume):
         return self.player.audio_set_volume(volume)
