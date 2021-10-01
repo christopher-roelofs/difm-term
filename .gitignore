@@ -132,3 +132,4 @@ release/
 playlists/
 tracks/
 favorites.json
+last_channel.json

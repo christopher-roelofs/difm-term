@@ -17,6 +17,7 @@ debug_message = ""
 debug = False
 player = None
 stop_input = False
+last_channel = {}
 
 def screen_clear():
     # for mac and linux(here, os.name is 'posix')
@@ -25,6 +26,22 @@ def screen_clear():
     else:
         # for windows platfrom
         _ = os.system('cls')
+
+def save_last_channel():
+    with open('last_channel.json', 'w') as outjson:
+        json.dump(last_channel, outjson)
+
+def load_last_channel():
+    global last_channel
+    if os.path.exists('last_channel.json'):
+        with open('last_channel.json') as json_file:
+            last_channel = json.load(json_file)
+
+def update_last_channel():
+    global last_channel
+    last_channel = {}
+    last_channel[current_channel] = current_channel_id
+    save_last_channel()
 
 def save_favorites():
     with open('favorites.json', 'w') as outjson:
@@ -176,6 +193,7 @@ def favorites_menu():
                     for track in difm.get_tracks_by_channel_id(id):
                         current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
                 current_track_index = -1
+                update_last_channel()
                 play_next_track()
                 player_menu()
             except Exception as e:
@@ -223,6 +241,7 @@ def all_channels_menu():
                     for track in difm.get_tracks_by_channel_id(id):
                         current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
                 current_track_index = -1
+                update_last_channel()
                 play_next_track()
                 player_menu()
             except Exception as e:
@@ -230,6 +249,11 @@ def all_channels_menu():
                     
 
 def menu():
+    global current_channel
+    global current_channel_id
+    global current_tracklist
+    global current_track_index
+    global last_channel
     quit_menu = False
     while not quit_menu:
         screen_clear()
@@ -238,16 +262,30 @@ def menu():
         print("-------------------")
         print("1: All Channels")
         print("2: Favorite Channels")
+        print("3: Last Channel (default)")
         print("Q: Quit")
         print("-------------------")
-        val = input().lower()
+        val = input().lower() or "3"
         if val == "1":
             all_channels_menu()
         if val == "2":
             favorites_menu()
+        if val == "3":
+            if len(last_channel) > 0:
+                id = list(last_channel.items())[0][1]
+                current_channel = list(last_channel.items())[0][0]
+                current_channel_id = id
+                current_tracklist = {}
+                for n in range(1):
+                    for track in difm.get_tracks_by_channel_id(id):
+                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+                current_track_index = -1
+                play_next_track()
+                player_menu()
         if val == "q":
             quit_menu = True
 
 
 load_favorites()
+load_last_channel()
 menu()
