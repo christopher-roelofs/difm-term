@@ -91,6 +91,7 @@ def play_next_track(event=None):
     player.set_event_callback(play_next_track)
     player.play_audio(list(current_tracklist.items())[current_track_index][1])
     current_track = list(current_tracklist.items())[current_track_index][0]
+    screen_clear()
 
 def play_previous_track():
     global player
@@ -107,21 +108,26 @@ def play_previous_track():
         player.set_event_callback(play_next_track)
         player.play_audio(list(current_tracklist.items())[current_track_index][1])
         current_track = list(current_tracklist.items())[current_track_index][0]
+        screen_clear()
 
 def player_menu():
     quit_player = False
     while not quit_player:
         global debug_message
         screen_clear()
-        print("-----------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------")
         print(f"Channel:  {current_channel}")
+        print(f"Track:    {current_track}")
         print(f"Favorite: {current_channel in favorite_channels}")
         print(f"Status:   {player.get_status()}")
         print(f"Volume:   {player.get_volume()}")
         if debug:
             print(f"Msg:      {debug_message}")
-        print("-----------------------------------------------------------------------------------------")
-        print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back | V: Volume | D: Download Track | F: Favorite/Unfavorite Channel")
+        print("--------------------------------------------------------------")
+        print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back")
+        print("--------------------------------------------------------------")
+        print("V: Volume | D: Download Track | F: Favorite/Unfavorite Channel")
+        print("--------------------------------------------------------------")
         val = input().lower()
         if val == "q":
             player.stop_audio()
