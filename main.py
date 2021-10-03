@@ -13,6 +13,7 @@ current_track = ""
 current_track_index = -1
 current_tracklist = {}
 favorite_channels = {}
+conifg = {}
 debug_message = ""
 debug = False
 player = None
@@ -53,6 +54,16 @@ def load_favorites():
         with open('favorites.json') as json_file:
             favorite_channels = json.load(json_file)
 
+def load_config():
+    global conifg
+    if os.path.exists('config.json'):
+        with open('config.json') as json_file:
+            conifg = json.load(json_file)
+
+def save_config():
+    with open('config.json', 'w') as outjson:
+        json.dump(conifg, outjson)
+
 def update_favorites(channel,id):
     global favorite_channels
     if channel in favorite_channels:
@@ -69,6 +80,22 @@ def update_current_tracks():
     for n in range(1):
         for track in difm.get_tracks_by_channel_id(current_channel_id):
             current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+
+def draw_player():
+    screen_clear()
+    print("--------------------------------------------------------------")
+    print(f"Channel:  {current_channel}")
+    print(f"Track:    {current_track}")
+    print(f"Favorite: {current_channel in favorite_channels}")
+    print(f"Status:   {player.get_status()}")
+    print(f"Volume:   {player.get_volume()}")
+    if debug:
+        print(f"Msg:      {debug_message}")
+    print("--------------------------------------------------------------")
+    print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back")
+    print("--------------------------------------------------------------")
+    print("V: Volume | D: Download Track | F: Favorite/Unfavorite Channel")
+    print("--------------------------------------------------------------")
 
 def play_next_track(event=None):
     global debug_message
@@ -91,7 +118,7 @@ def play_next_track(event=None):
     player.set_event_callback(play_next_track)
     player.play_audio(list(current_tracklist.items())[current_track_index][1])
     current_track = list(current_tracklist.items())[current_track_index][0]
-    screen_clear()
+    draw_player()
 
 def play_previous_track():
     global player
@@ -108,26 +135,13 @@ def play_previous_track():
         player.set_event_callback(play_next_track)
         player.play_audio(list(current_tracklist.items())[current_track_index][1])
         current_track = list(current_tracklist.items())[current_track_index][0]
-        screen_clear()
+        draw_player()
 
 def player_menu():
     quit_player = False
     while not quit_player:
         global debug_message
-        screen_clear()
-        print("--------------------------------------------------------------")
-        print(f"Channel:  {current_channel}")
-        print(f"Track:    {current_track}")
-        print(f"Favorite: {current_channel in favorite_channels}")
-        print(f"Status:   {player.get_status()}")
-        print(f"Volume:   {player.get_volume()}")
-        if debug:
-            print(f"Msg:      {debug_message}")
-        print("--------------------------------------------------------------")
-        print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back")
-        print("--------------------------------------------------------------")
-        print("V: Volume | D: Download Track | F: Favorite/Unfavorite Channel")
-        print("--------------------------------------------------------------")
+        draw_player()
         val = input().lower()
         if val == "q":
             player.stop_audio()
