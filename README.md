@@ -21,6 +21,10 @@ Favorite Channels
 
 ![image](https://user-images.githubusercontent.com/1930031/135911753-5e1a5cc6-7307-4521-8ab8-478af8d40796.png)
 
+Player 
+
+![image](https://user-images.githubusercontent.com/1930031/135911850-e013ae5a-3c69-49b2-a5ef-5bf27fda642a.png)
+
 Generate Playlist
 
 ![image](https://user-images.githubusercontent.com/1930031/135911998-7d250b0e-398a-477b-b0d8-e5c13bbf5407.png)
@@ -36,9 +40,7 @@ Edit Config
 
 
 
-Player 
 
-![image](https://user-images.githubusercontent.com/1930031/135911850-e013ae5a-3c69-49b2-a5ef-5bf27fda642a.png)
 
 
 
