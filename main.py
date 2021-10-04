@@ -1,4 +1,4 @@
-from logging import exception
+import datetime
 from time import sleep
 import difm
 import os
@@ -19,6 +19,15 @@ debug = False
 player = None
 stop_input = False
 last_channel = {}
+logs = []
+
+def log(message,type):
+    log = {}
+    log["timestamp"] = datetime.datetime.now()
+    log["message"] = message
+    log["type"] = type
+    logs.append(log)
+
 
 def screen_clear():
     # for mac and linux(here, os.name is 'posix')
@@ -31,38 +40,46 @@ def screen_clear():
 def save_last_channel():
     with open('last_channel.json', 'w') as outjson:
         json.dump(last_channel, outjson)
+    log(f"Saved last channel","info")
 
 def load_last_channel():
     global last_channel
     if os.path.exists('last_channel.json'):
         with open('last_channel.json') as json_file:
             last_channel = json.load(json_file)
+    log("Loaded last channel","info")
 
 def update_last_channel():
     global last_channel
     last_channel = {}
     last_channel[current_channel] = current_channel_id
+    log(f"Updated last channel to {last_channel}","info")
     save_last_channel()
 
 def save_favorites():
     with open('favorites.json', 'w') as outjson:
         json.dump(favorite_channels, outjson)
+    log("Saved favorites","info")
 
 def load_favorites():
     global favorite_channels
     if os.path.exists('favorites.json'):
         with open('favorites.json') as json_file:
             favorite_channels = json.load(json_file)
+    log("Loaded favorites","info")
+    
 
 def load_config():
     global config
     if os.path.exists('config.json'):
         with open('config.json') as json_file:
             config = json.load(json_file)
+    log("Loaded config","info")
 
 def save_config():
     with open('config.json', 'w') as outjson:
         json.dump(config, outjson)
+    log("Saved config","info")
 
 def update_favorites(channel,id):
     global favorite_channels
@@ -70,6 +87,7 @@ def update_favorites(channel,id):
         del favorite_channels[channel]
     else:
          favorite_channels[channel] = id
+    log("Upated favorites","info")
     save_favorites()
 
 def update_current_tracks():
@@ -80,6 +98,7 @@ def update_current_tracks():
     for n in range(1):
         for track in difm.get_tracks_by_channel_id(current_channel_id):
             current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+    log(f"Refreshed tracks for channel id {current_channel_id}","info")
 
 def draw_player():
     screen_clear()
@@ -103,11 +122,14 @@ def play_next_track(event=None):
     global current_track
     global current_track_index
     current_track_index += 1
+    log("Playing next track","info")
     if current_track_index >= len(current_tracklist): 
         global debug_message 
+        log("Last song in tracklist","info")
         update_current_tracks()
         current_track_index += 1   
     if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
+        log("Track is expired","info")
         update_current_tracks()
         current_track_index += 1
     if player != None:
@@ -125,8 +147,10 @@ def play_previous_track():
     global current_track
     global current_track_index
     current_track_index -= 1
+    log("Playing previous track")
     if current_track_index > 0: 
         if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
+            log("Track is expired","info")
             update_current_tracks()
             current_track_index += 1
         player.stop_audio()
@@ -161,6 +185,7 @@ def config_menu():
                 pass
             else:
                 config["track_directory"] = val
+                log(f"Updated track directory to {val}","info")
                 save_config()
         if val == "2":
             screen_clear()
@@ -171,6 +196,7 @@ def config_menu():
                 pass
             else:
                 config["playlist_directory"] = val
+                log(f"Updated playlist directory to {val}","info")
                 save_config()
 
 def play_last_channel(generate_playlist=False):
@@ -196,7 +222,7 @@ def play_last_channel(generate_playlist=False):
                 play_next_track()
                 player_menu()
         except Exception as e:
-            pass
+            log(f"Error: {e}","error")
 
 def player_menu():
     quit_player = False
@@ -221,12 +247,17 @@ def player_menu():
             volume = input("Volume: ")
             try:
                 player.set_volume(int(volume))
-            except:
-                pass
+                log(f"Updated volume to {volume}","info")
+            except Exception as e:
+                log(f"Failed to set volume: {e}","error")
         if val == "d":
-            difm.download_track(list(current_tracklist.items())[current_track_index][0],current_channel,list(current_tracklist.items())[current_track_index][1],config["track_directory"])
+            track = list(current_tracklist.items())[current_track_index][0]
+            url = list(current_tracklist.items())[current_track_index][1]
+            difm.download_track(track,current_channel,url,config["track_directory"])
+            log(f"Downloaded track: {track}","info")
         if val =="f":
             update_favorites(current_channel,current_channel_id)
+            log(f"Updated favorites: {current_channel}:{current_channel_id}","info")
         sleep(1)
 
 def favorites_menu(generate_playlist=False):
@@ -282,7 +313,7 @@ def favorites_menu(generate_playlist=False):
                     play_next_track()
                     player_menu()
             except Exception as e:
-                debug_message = e  
+                log(f"Error: {e}","error")
 
 def all_channels_menu(generate_playlist=False):
     quit = False
@@ -334,7 +365,34 @@ def all_channels_menu(generate_playlist=False):
                     play_next_track()
                     player_menu()
             except Exception as e:
-                debug_message = e   
+                log(f"Error: {e}","error") 
+
+def log_menu():
+    quit = False
+    log_page = 1
+    sorted_logs = sorted(logs, key=lambda k: k['timestamp'], reverse=True)
+    while not quit:
+        screen_clear()
+        print("------------------------------------------")
+        print("                  Logs                    ")
+        print("------------------------------------------")
+        index = 0
+        max = log_page * 10
+        for log in sorted_logs[max - 10:max]:
+            print(f"{log['timestamp']} - {log['type']} - {log['message']}")
+            index += 1
+        print("------------------------------------------")
+        print("N: Next Page | P: Previous Page | Q: Quit ")
+        print("------------------------------------------")
+        val = input()
+        if val.lower() == "n" or val == "":
+            if log_page <= (len(sorted_logs) / 10):
+                log_page += 1
+        if val.lower() == "p":
+            if log_page > 1:
+                log_page -= 1
+        if val.lower() == "q":
+                quit = True
 
 def playlist_menu():
     global current_channel
@@ -380,6 +438,7 @@ def menu():
         print("3: Last Channel (default)")
         print("4: Generate Playlist")
         print("5: Edit Config")
+        print("6: Show logs")
         print("Q: Quit")
         print("-------------------")
         val = input().lower() or "3"
@@ -393,6 +452,8 @@ def menu():
             playlist_menu()
         if val == "5":
             config_menu()
+        if val == "6":
+            log_menu()
         if val == "q":
             quit_menu = True
 
