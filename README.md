@@ -9,19 +9,38 @@ main.py
 
 The player requires VLC media player (python-vlc). Download the correct version for your system (x86 vs x64)
 
-![image](https://user-images.githubusercontent.com/1930031/135164286-b39f839b-a660-48db-a701-39fb21d754f5.png)
+Main Menu
 
-![image](https://user-images.githubusercontent.com/1930031/135334793-d0a40601-fab6-4aeb-b49f-7ea35aaed15b.png)
+![image](https://user-images.githubusercontent.com/1930031/135911607-188e76a2-120e-4fc9-a710-3a935cf9de60.png)
+
+All Channels
+
+![image](https://user-images.githubusercontent.com/1930031/135911658-01198387-d4f3-4f42-b8ce-e51e67aee601.png)
+
+Favorite Channels
+
+![image](https://user-images.githubusercontent.com/1930031/135911753-5e1a5cc6-7307-4521-8ab8-478af8d40796.png)
+
+Generate Playlist
+
+![image](https://user-images.githubusercontent.com/1930031/135911998-7d250b0e-398a-477b-b0d8-e5c13bbf5407.png)
+
+Edit Config
+
+![image](https://user-images.githubusercontent.com/1930031/135912064-1dacf744-b07e-4eab-a755-b33d7935f053.png)
+
+![image](https://user-images.githubusercontent.com/1930031/135912115-6fc61e47-c35b-4f5e-b6df-b809abb1e1c1.png)
+
+![image](https://user-images.githubusercontent.com/1930031/135912160-a08559db-848d-4754-88f9-9115be1e7c09.png)
 
 
 
 
-**Playlist Generator**
+Player 
 
-generate_playlist.py
+![image](https://user-images.githubusercontent.com/1930031/135911850-e013ae5a-3c69-49b2-a5ef-5bf27fda642a.png)
 
-Playlists are created in the playlists folder. Tracks has an expiration date of about 24 hours. The expiration is added to the playlist name and in the title for each track.
 
-![image](https://user-images.githubusercontent.com/1930031/135164749-2d13972d-d6e8-4883-a1fa-525ad126ef58.png)
+
 
 
