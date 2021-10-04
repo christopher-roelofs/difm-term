@@ -13,7 +13,7 @@ current_track = ""
 current_track_index = -1
 current_tracklist = {}
 favorite_channels = {}
-conifg = {}
+config = {"playlist_directory":"playlists","track_directory":"tracks"}
 debug_message = ""
 debug = False
 player = None
@@ -55,14 +55,14 @@ def load_favorites():
             favorite_channels = json.load(json_file)
 
 def load_config():
-    global conifg
+    global config
     if os.path.exists('config.json'):
         with open('config.json') as json_file:
-            conifg = json.load(json_file)
+            config = json.load(json_file)
 
 def save_config():
     with open('config.json', 'w') as outjson:
-        json.dump(conifg, outjson)
+        json.dump(config, outjson)
 
 def update_favorites(channel,id):
     global favorite_channels
@@ -85,8 +85,8 @@ def draw_player():
     screen_clear()
     print("--------------------------------------------------------------")
     print(f"Channel:  {current_channel}")
-    print(f"Track:    {current_track}")
     print(f"Favorite: {current_channel in favorite_channels}")
+    print(f"Track:    {current_track}")
     print(f"Status:   {player.get_status()}")
     print(f"Volume:   {player.get_volume()}")
     if debug:
@@ -137,6 +137,67 @@ def play_previous_track():
         current_track = list(current_tracklist.items())[current_track_index][0]
         draw_player()
 
+def config_menu():
+    quit_config = False
+    global config
+    while not quit_config:
+        screen_clear()
+        print("----------------------")
+        print("Edit Config")
+        print("----------------------")
+        print("1: Track Directory")
+        print("2: Playlist Directory")
+        print("Q: Back")
+        print("----------------------")
+        val = input().lower()
+        if val == "q":
+            quit_config = True
+        if val == "1":
+            screen_clear()
+            print("Edit Track Directory. Q to Quit")
+            print(f'Current Track Directory: {config["track_directory"]}')
+            val = input("New Track Directory:     ")
+            if val.lower() == "q":
+                pass
+            else:
+                config["track_directory"] = val
+                save_config()
+        if val == "2":
+            screen_clear()
+            print("Edit Playlist Directory. Q to Quit")
+            print(f'Current Playlist Directory: {config["playlist_directory"]}')
+            val = input("New Playlist Directory:     ")
+            if val.lower() == "q":
+                pass
+            else:
+                config["playlist_directory"] = val
+                save_config()
+
+def play_last_channel(generate_playlist=False):
+    global current_channel
+    global current_channel_id
+    global current_tracklist
+    global current_track_index
+    if len(last_channel) > 0:
+        id = list(last_channel.items())[0][1]
+        channel= list(last_channel.items())[0][0]
+        current_channel = channel
+        current_channel_id = id
+        try:
+            if generate_playlist:
+                difm.generate_playlist(id,channel,config["playlist_directory"])
+                val = input("Press enter to continue")
+            else:
+                current_tracklist = {}
+                for n in range(1):
+                    for track in difm.get_tracks_by_channel_id(id):
+                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+                current_track_index = -1
+                play_next_track()
+                player_menu()
+        except Exception as e:
+            pass
+
 def player_menu():
     quit_player = False
     while not quit_player:
@@ -163,12 +224,12 @@ def player_menu():
             except:
                 pass
         if val == "d":
-            difm.download_track(list(current_tracklist.items())[current_track_index][0],current_channel,list(current_tracklist.items())[current_track_index][1])
+            difm.download_track(list(current_tracklist.items())[current_track_index][0],current_channel,list(current_tracklist.items())[current_track_index][1],config["track_directory"])
         if val =="f":
             update_favorites(current_channel,current_channel_id)
         sleep(1)
 
-def favorites_menu():
+def favorites_menu(generate_playlist=False):
     global current_channel
     global current_channel_id
     global current_track_index
@@ -208,18 +269,22 @@ def favorites_menu():
                 id = channel[1]
                 current_channel = channel[0]
                 current_channel_id = id
-                current_tracklist = {}
-                for n in range(1):
-                    for track in difm.get_tracks_by_channel_id(id):
-                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
-                current_track_index = -1
-                update_last_channel()
-                play_next_track()
-                player_menu()
+                if generate_playlist:
+                    difm.generate_playlist(id,channel[0],config["playlist_directory"])
+                    val = input("Press enter to continue")
+                else:
+                    current_tracklist = {}
+                    for n in range(1):
+                        for track in difm.get_tracks_by_channel_id(id):
+                            current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+                    current_track_index = -1
+                    update_last_channel()
+                    play_next_track()
+                    player_menu()
             except Exception as e:
                 debug_message = e  
 
-def all_channels_menu():
+def all_channels_menu(generate_playlist=False):
     quit = False
     while not quit:
         global current_page
@@ -254,19 +319,49 @@ def all_channels_menu():
             try:
                 channel = difm.channels[max - 10:max][int(val)]
                 id = channel["id"]
-                current_channel = channel["name"]
-                current_channel_id = id
-                current_tracklist = {}
-                for n in range(1):
-                    for track in difm.get_tracks_by_channel_id(id):
-                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
-                current_track_index = -1
-                update_last_channel()
-                play_next_track()
-                player_menu()
+                if generate_playlist:
+                    difm.generate_playlist(id,channel["name"],config["playlist_directory"])
+                    val = input("Press enter to continue")
+                else:
+                    current_channel = channel["name"]
+                    current_channel_id = id
+                    current_tracklist = {}
+                    for n in range(1):
+                        for track in difm.get_tracks_by_channel_id(id):
+                            current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
+                    current_track_index = -1
+                    update_last_channel()
+                    play_next_track()
+                    player_menu()
             except Exception as e:
                 debug_message = e   
-                    
+
+def playlist_menu():
+    global current_channel
+    global current_channel_id
+    global current_tracklist
+    global current_track_index
+    global last_channel
+    quit_playlist = False
+    while not quit_playlist:
+        screen_clear()
+        print("--------------------------------------------")
+        print("    Generate Playlist(.pls) from Channel    ")
+        print("--------------------------------------------")
+        print("1: All Channels")
+        print("2: Favorite Channels")
+        print("3: Last Channel (default)")
+        print("Q: Quit")
+        print("--------------------------------------------")
+        val = input().lower() or "3"
+        if val == "1":
+            all_channels_menu(generate_playlist=True)
+        if val == "2":
+            favorites_menu(generate_playlist=True)
+        if val == "3":
+            play_last_channel(generate_playlist=True)
+        if val == "q":
+            quit_playlist = True                    
 
 def menu():
     global current_channel
@@ -283,6 +378,8 @@ def menu():
         print("1: All Channels")
         print("2: Favorite Channels")
         print("3: Last Channel (default)")
+        print("4: Generate Playlist")
+        print("5: Edit Config")
         print("Q: Quit")
         print("-------------------")
         val = input().lower() or "3"
@@ -291,21 +388,15 @@ def menu():
         if val == "2":
             favorites_menu()
         if val == "3":
-            if len(last_channel) > 0:
-                id = list(last_channel.items())[0][1]
-                current_channel = list(last_channel.items())[0][0]
-                current_channel_id = id
-                current_tracklist = {}
-                for n in range(1):
-                    for track in difm.get_tracks_by_channel_id(id):
-                        current_tracklist[track["track"]] = "https:" + track['content']["assets"][0]["url"]
-                current_track_index = -1
-                play_next_track()
-                player_menu()
+            play_last_channel()
+        if val == "4":
+            playlist_menu()
+        if val == "5":
+            config_menu()
         if val == "q":
             quit_menu = True
 
-
+load_config()
 load_favorites()
 load_last_channel()
 menu()

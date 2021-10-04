@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import json
 import time
 from urllib.parse import urlparse
@@ -7,7 +9,6 @@ import datetime
 from datetime import timezone
 import os
 
-from requests.api import head, request
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
@@ -15,9 +16,9 @@ headers = {
     "Connection": "keep-alive"
 }
 
-s = requests.Session()
+
 # There is probbaly a better way to get this that also allows for using credentials.
-response = s.post("https://www.di.fm/login",headers=headers)
+response = requests.post("https://www.di.fm/login",headers=headers)
 result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
 
 user = result["user"]
@@ -50,29 +51,41 @@ def is_url_expired(url):
 def get_channels():
    return channels
 
-def download_track(track,channel,url):
-   path = os.path.join("tracks",channel)
+def download_track(track,channel,url,directory="tracks"):
+   path = os.path.join(directory,channel)
    if not os.path.exists(path):
       os.makedirs(path)
    r = requests.get(url, allow_redirects=True,headers=headers)
    open(os.path.join(path,f"{track}.mp4"), 'wb').write(r.content)
 
-def get_channel_by_id(id):
-   epoch = time.time()
-   channel_url = f'https://www.di.fm/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   channel_repsonse = s.get(channel_url,headers=headers)
-   channel_details = json.loads(channel_repsonse.text)
-   return channel_details
-
 def get_tracks_by_channel_id(id):
    tracks = []
    epoch = time.time()
    channel_url = f'https://www.di.fm/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   channel_repsonse = s.get(channel_url,headers=headers)
+   channel_repsonse = requests.get(channel_url,headers=headers)
    for track in json.loads(channel_repsonse.text)["tracks"]:
       tracks.append(track)
    return tracks
 
+def generate_playlist(channel_id,channel_name,playlist_directory="playlists"):
+   print(f"Generating pls file for {channel_name} in {playlist_directory} ...")
+   index = 0
+   pls_tracks = {}
+   for n in range(4):
+         tracks = get_tracks_by_channel_id(channel_id)
+         for track in tracks:
+            pls_tracks[track["track"]] = f'https:{track["content"]["assets"][0]["url"]}'
+   expiration = get_url_expiration(list(pls_tracks.items())[0][1]).replace(":","-")
+   if not  os.path.exists(playlist_directory):
+         os.makedirs(playlist_directory)
+   with open(os.path.join(playlist_directory,f"{channel_name} - Expires {expiration}.pls"), 'a', encoding="utf-8") as f:
+         f.write("[playlist]\n")
+         f.write(f"NumberOfEntries={len(pls_tracks)}\n")
+         for track in pls_tracks:
+            index += 1
+            f.write(f"File{index}={pls_tracks[track]}\n")
+            f.write(f"Title{index}={track} Expires: {get_url_expiration(pls_tracks[track])}\n")
+   print("Done. See playlists directory for file")
 
 if __name__ == "__main__":
    pass
