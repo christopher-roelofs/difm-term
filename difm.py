@@ -1,6 +1,4 @@
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 import json
 import time
 from urllib.parse import urlparse
@@ -16,14 +14,18 @@ headers = {
     "Connection": "keep-alive"
 }
 
+channels = []
+audio_token = None
 
-# There is probbaly a better way to get this that also allows for using credentials.
-response = requests.post("https://www.di.fm/login",headers=headers)
-result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+def update_audio_token():
+   global audio_token
+   global channels
+   # There is probbaly a better way to get this that also allows for using credentials.
+   response = requests.post("https://www.di.fm/login",headers=headers)
+   result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+   audio_token = result["user"]["audio_token"]
+   channels = result["channels"]
 
-user = result["user"]
-channels = result["channels"]
-audio_token = user["audio_token"]
 
 def get_url_expiration(url):
     parsed_url = urlparse(url)
@@ -86,6 +88,8 @@ def generate_playlist(channel_id,channel_name,playlist_directory="playlists"):
             f.write(f"File{index}={pls_tracks[track]}\n")
             f.write(f"Title{index}={track} Expires: {get_url_expiration(pls_tracks[track])}\n")
    print("Done. See playlists directory for file")
+
+update_audio_token()
 
 if __name__ == "__main__":
    pass

@@ -14,20 +14,18 @@ current_track_index = -1
 current_tracklist = {}
 favorite_channels = {}
 config = {"playlist_directory":"playlists","track_directory":"tracks"}
-debug_message = ""
-debug = False
 player = None
 stop_input = False
 last_channel = {}
 logs = []
 
 def log(message,type):
+    global logs
     log = {}
     log["timestamp"] = datetime.datetime.now()
     log["message"] = message
     log["type"] = type
     logs.append(log)
-
 
 def screen_clear():
     # for mac and linux(here, os.name is 'posix')
@@ -53,7 +51,7 @@ def update_last_channel():
     global last_channel
     last_channel = {}
     last_channel[current_channel] = current_channel_id
-    log(f"Updated last channel to {last_channel}","info")
+    log(f"Updated last channel to {current_channel}","info")
     save_last_channel()
 
 def save_favorites():
@@ -68,7 +66,6 @@ def load_favorites():
             favorite_channels = json.load(json_file)
     log("Loaded favorites","info")
     
-
 def load_config():
     global config
     if os.path.exists('config.json'):
@@ -108,8 +105,6 @@ def draw_player():
     print(f"Track:    {current_track}")
     print(f"Status:   {player.get_status()}")
     print(f"Volume:   {player.get_volume()}")
-    if debug:
-        print(f"Msg:      {debug_message}")
     print("--------------------------------------------------------------")
     print("P: Play/Pause | S: Stop | N: Next | R: Previous | Q: Back")
     print("--------------------------------------------------------------")
@@ -117,14 +112,11 @@ def draw_player():
     print("--------------------------------------------------------------")
 
 def play_next_track(event=None):
-    global debug_message
     global player
     global current_track
     global current_track_index
     current_track_index += 1
-    log("Playing next track","info")
     if current_track_index >= len(current_tracklist): 
-        global debug_message 
         log("Last song in tracklist","info")
         update_current_tracks()
         current_track_index += 1   
@@ -140,6 +132,7 @@ def play_next_track(event=None):
     player.set_event_callback(play_next_track)
     player.play_audio(list(current_tracklist.items())[current_track_index][1])
     current_track = list(current_tracklist.items())[current_track_index][0]
+    log(f"Playing next track: {current_track}","info")
     draw_player()
 
 def play_previous_track():
@@ -227,7 +220,6 @@ def play_last_channel(generate_playlist=False):
 def player_menu():
     quit_player = False
     while not quit_player:
-        global debug_message
         draw_player()
         val = input().lower()
         if val == "q":
