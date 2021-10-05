@@ -6,8 +6,13 @@ import shutil
 import PyInstaller.__main__
 import datetime
 import json
+import platform
 
 version = "0.0"
+
+target_platform = platform.system()
+if target_platform == "Darwin":
+    target_platform = "Mac"
 
 if os.path.exists("version.json"):
     with open("version.json") as version_text:
@@ -15,7 +20,7 @@ if os.path.exists("version.json"):
         version = version_json['version']
 
 date = datetime.datetime.now().strftime("%d%m%Y")
-filename = os.path.join("release",f"difm_{version}_{date}")
+filename = os.path.join("release",f"difm_{target_platform}_{version}_{date}")
 
 PyInstaller.__main__.run(['main.spec','--onefile','--clean'])
 shutil.make_archive(filename, 'zip', "dist")
