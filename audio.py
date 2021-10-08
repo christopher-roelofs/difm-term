@@ -1,9 +1,12 @@
 import vlc
-
+import datetime
 
 class Player:
-    def __init__(self):
-        self.instance = vlc.Instance("--quiet") # --verbose 2
+    def __init__(self,vlc_log=False):
+        params = "--quiet"
+        if vlc_log:
+            params = f'--verbose=2 --file-logging --logfile=vlc-log_{datetime.datetime.now().strftime("%m%d%Y")}.txt'
+        self.instance = vlc.Instance(params) # --verbose 2 --quiet
         self.player = self.instance.media_player_new()
         self.listPlayer = self.instance.media_list_player_new()
         self.status = "Not Playing"
@@ -45,8 +48,6 @@ class Player:
         elif self.status == "Stopped":
             self.player.play()
             self.status = "Playing"
-
-
 
 if __name__ == "__main__":
     pass

@@ -13,7 +13,7 @@ current_track = ""
 current_track_index = -1
 current_tracklist = {}
 favorite_channels = {}
-config = {"playlist_directory":"playlists","track_directory":"tracks"}
+config = {"playlist_directory":"playlists","track_directory":"tracks","vlc_log":False}
 player = None
 stop_input = False
 last_channel = {}
@@ -128,7 +128,7 @@ def play_next_track(event=None):
         if event == None:
             player.stop_audio()
     del player
-    player = audio.Player()
+    player = audio.Player(vlc_log=config["vlc_log"])
     player.set_event_callback(play_next_track)
     player.play_audio(list(current_tracklist.items())[current_track_index][1])
     current_track = list(current_tracklist.items())[current_track_index][0]
@@ -148,7 +148,7 @@ def play_previous_track():
             current_track_index += 1
         player.stop_audio()
         del player
-        player = audio.Player()
+        player = audio.Player(vlc_log=config["vlc_log"])
         player.set_event_callback(play_next_track)
         player.play_audio(list(current_tracklist.items())[current_track_index][1])
         current_track = list(current_tracklist.items())[current_track_index][0]
@@ -164,6 +164,7 @@ def config_menu():
         print("----------------------")
         print("1: Track Directory")
         print("2: Playlist Directory")
+        print("3: Enable VLC Log to File")
         print("Q: Back")
         print("----------------------")
         val = input().lower()
@@ -190,6 +191,18 @@ def config_menu():
             else:
                 config["playlist_directory"] = val
                 log(f"Updated playlist directory to {val}","info")
+                save_config()
+        if val == "3":
+            print("Enable VLC logging to file")
+            print(f"Current set to {config['vlc_log']}")
+            val = input("New state True/False: ")
+            if val.lower() == "q":
+                pass
+            elif val.lower() in ["true","t","false","f"]:
+                if val.lower() in ["true","t"]:
+                    config["vlc_log"] = True
+                else:
+                    config["vlc_log"] = False
                 save_config()
 
 def play_last_channel(generate_playlist=False):

@@ -15,17 +15,19 @@ headers = {
 }
 
 channels = []
+user = []
 audio_token = None
 
 def update_audio_token():
    global audio_token
    global channels
+   global user
    # There is probbaly a better way to get this that also allows for using credentials.
    response = requests.post("https://www.di.fm/login",headers=headers)
    result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+   user = result["user"]
    audio_token = result["user"]["audio_token"]
    channels = result["channels"]
-
 
 def get_url_expiration(url):
     parsed_url = urlparse(url)

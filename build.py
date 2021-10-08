@@ -19,7 +19,7 @@ if os.path.exists("version.json"):
         version_json = json.load(version_text)
         version = version_json['version']
 
-date = datetime.datetime.now().strftime("%d%m%Y")
+date = datetime.datetime.now().strftime("%m%d%Y")
 filename = os.path.join("release",f"difm_{target_platform}_{version}_{date}")
 
 PyInstaller.__main__.run(['main.spec','--onefile','--clean'])
