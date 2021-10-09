@@ -7,6 +7,15 @@ import datetime
 from datetime import timezone
 import os
 
+from requests.models import Response
+
+networks = []
+channels = []
+user = []
+audio_token = None
+session_key = None
+
+network_url = "https://www.di.fm"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
@@ -14,19 +23,25 @@ headers = {
     "Connection": "keep-alive"
 }
 
-channels = []
-user = []
-audio_token = None
-
 def update_audio_token():
    global audio_token
    global channels
+   global session_key
    global user
+   global networks
    # There is probbaly a better way to get this that also allows for using credentials.
-   response = requests.post("https://www.di.fm/login",headers=headers)
+   response = requests.post(f"{network_url}/login",headers=headers)
+   #print(response.text.encode('utf8'))
    result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
    user = result["user"]
+   networks = []
+   for network in result["networks"]:
+      # figure out what's wrong with parsing ClassicalRadio.com thml
+      if network["name"] != "ClassicalRadio.com":
+         networks.append(network)
+   
    audio_token = result["user"]["audio_token"]
+   session_key = result["user"]["session_key"]
    channels = result["channels"]
 
 def get_url_expiration(url):
@@ -55,6 +70,14 @@ def is_url_expired(url):
 def get_channels():
    return channels
 
+def get_networks():
+   return networks
+
+def set_network_url(url):
+   global network_url
+   network_url = url
+   update_audio_token()
+
 def download_track(track,channel,url,directory="tracks"):
    path = os.path.join(directory,channel)
    if not os.path.exists(path):
@@ -65,7 +88,7 @@ def download_track(track,channel,url,directory="tracks"):
 def get_tracks_by_channel_id(id):
    tracks = []
    epoch = time.time()
-   channel_url = f'https://www.di.fm/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
+   channel_url = f'{network_url}/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
    channel_repsonse = requests.get(channel_url,headers=headers)
    for track in json.loads(channel_repsonse.text)["tracks"]:
       tracks.append(track)
@@ -94,4 +117,6 @@ def generate_playlist(channel_id,channel_name,playlist_directory="playlists"):
 update_audio_token()
 
 if __name__ == "__main__":
-   pass
+   update_audio_token()
+   for network in networks:
+      print(network["name"],network["url"])

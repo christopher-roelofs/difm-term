@@ -8,6 +8,8 @@ import json
 current_page = 1
 current_channel = None
 current_channel_id = None
+current_network = "DI.FM"
+curent_network_id = None
 volume = None
 current_track = ""
 current_track_index = -1
@@ -424,7 +426,35 @@ def playlist_menu():
         if val == "3":
             play_last_channel(generate_playlist=True)
         if val == "q":
-            quit_playlist = True                    
+            quit_playlist = True    
+
+def network_menu():
+    quit_network = False
+    global current_network
+    while not quit_network:
+        screen_clear()
+        print("---------------")
+        print("Select Network")
+        print("---------------")
+        index = 0
+        networks = difm.get_networks()
+        for network in networks:
+            print(f"{index}: {network['name']}")
+            index += 1     
+        print("---------------")    
+        print("Q: Back")
+        print("---------------") 
+        val = input().lower()
+        if val == "":
+            pass
+        elif val in "0123456789":
+            if int(val) <= len(networks) - 1:
+                network = networks[int(val)]
+                current_network = network["name"]
+                difm.set_network_url(network["url"])
+                quit_network = True
+        elif val == "q":
+            quit_network = True
 
 def menu():
     global current_channel
@@ -436,14 +466,15 @@ def menu():
     while not quit_menu:
         screen_clear()
         print("-------------------")
-        print("     DI.FM Term    ")
+        print(f"    DI.FM Term    ")
         print("-------------------")
         print("1: All Channels")
         print("2: Favorite Channels")
         print("3: Last Channel (default)")
         print("4: Generate Playlist")
-        print("5: Edit Config")
-        print("6: Show logs")
+        print("5: Change Stream Network")
+        print("6: Edit Config")
+        print("7: Show logs")
         print("Q: Quit")
         print("-------------------")
         val = input().lower() or "3"
@@ -456,8 +487,10 @@ def menu():
         if val == "4":
             playlist_menu()
         if val == "5":
-            config_menu()
+            network_menu()
         if val == "6":
+            config_menu()
+        if val == "7":
             log_menu()
         if val == "q":
             quit_menu = True
