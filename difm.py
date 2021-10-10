@@ -57,8 +57,6 @@ def get_all_channels():
                channel_list.append(channel)
    return channel_list
 
-
-
 def get_url_expiration(url):
     parsed_url = urlparse(url)
     exp = parse_qs(parsed_url.query)['exp'][0]

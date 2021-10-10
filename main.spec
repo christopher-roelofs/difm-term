@@ -33,8 +33,3 @@ exe = EXE(pyz,
           runtime_tmpdir=None,
           icon='./icon.ico',
           console=True )
-
-app = BUNDLE(exe,
-         name='difm.app',
-         icon='icon.icns'
-         )
