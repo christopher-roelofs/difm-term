@@ -44,6 +44,21 @@ def update_audio_token():
    session_key = result["user"]["session_key"]
    channels = result["channels"]
 
+def get_all_channels():
+   channel_list = []
+   response = requests.post(f"{network_url}/login",headers=headers)
+   result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+   for network in result["networks"]:
+      if network["name"] != "ClassicalRadio.com":
+         response = requests.post(f"{network['url']}/login",headers=headers)
+         result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+         for channel in result["channels"]:
+            if channel not in channel_list:
+               channel_list.append(channel)
+   return channel_list
+
+
+
 def get_url_expiration(url):
     parsed_url = urlparse(url)
     exp = parse_qs(parsed_url.query)['exp'][0]
@@ -117,6 +132,4 @@ def generate_playlist(channel_id,channel_name,playlist_directory="playlists"):
 update_audio_token()
 
 if __name__ == "__main__":
-   update_audio_token()
-   for network in networks:
-      print(network["name"],network["url"])
+   print(get_all_channels())
