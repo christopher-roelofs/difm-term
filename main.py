@@ -431,6 +431,7 @@ def playlist_menu():
 def network_menu():
     quit_network = False
     global current_network
+    global current_page
     while not quit_network:
         screen_clear()
         print("---------------")
@@ -452,6 +453,7 @@ def network_menu():
                 network = networks[int(val)]
                 current_network = network["name"]
                 difm.set_network_url(network["url"])
+                current_page = 1
                 quit_network = True
         elif val == "q":
             quit_network = True
