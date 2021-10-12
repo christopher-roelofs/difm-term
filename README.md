@@ -11,7 +11,7 @@ The player requires VLC media player (python-vlc). Download the correct version 
 
 Main Menu
 
-![image](https://user-images.githubusercontent.com/1930031/135928645-39fc8ab7-15a4-457a-83cc-f0f85561847d.png)
+![image](https://user-images.githubusercontent.com/1930031/137034125-149569c6-6383-40aa-b34e-bb37f99e11b0.png)
 
 All Channels
 
@@ -20,6 +20,10 @@ All Channels
 Favorite Channels
 
 ![image](https://user-images.githubusercontent.com/1930031/135911753-5e1a5cc6-7307-4521-8ab8-478af8d40796.png)
+
+Network Select
+
+![image](https://user-images.githubusercontent.com/1930031/137034178-d264f5e1-2312-459d-bd5d-0cd05597989a.png)
 
 Player 
 
