@@ -27,6 +27,7 @@ class Player:
     def set_event_callback(self, callback):
         events = self.player.event_manager()
         events.event_attach(vlc.EventType.MediaPlayerEndReached, callback)
+        events.event_attach(vlc.EventType.MediaPlayerEncounteredError, callback)
 
     def play_audio(self, url):
         media = self.instance.media_new(url)

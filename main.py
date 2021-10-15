@@ -4,6 +4,7 @@ import difm
 import os
 import audio
 import json
+import vlc
 
 current_page = 1
 current_channel = None
@@ -129,6 +130,10 @@ def play_next_track(event=None):
     if player != None:
         if event == None:
             player.stop_audio()
+        else:
+            if vlc.EventType._enum_names_[event.type] == "MediaPlayerEncounteredError":
+                log("Issue playing track, skipping to next track.","error")
+            
     del player
     player = audio.Player(vlc_log=config["vlc_log"])
     player.set_event_callback(play_next_track)
