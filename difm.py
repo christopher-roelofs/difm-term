@@ -6,8 +6,9 @@ from urllib.parse import parse_qs
 import datetime
 from datetime import timezone
 import os
+import cloudscraper
 
-from requests.models import Response
+
 
 networks = []
 channels = []
@@ -23,6 +24,12 @@ headers = {
     "Connection": "keep-alive"
 }
 
+def get_page():
+ scraper = cloudscraper.create_scraper()
+ response = scraper.get(f"{network_url}/login")
+ result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+ return result
+
 def update_audio_token():
    global audio_token
    global channels
@@ -30,9 +37,7 @@ def update_audio_token():
    global user
    global networks
    # There is probbaly a better way to get this that also allows for using credentials.
-   response = requests.post(f"{network_url}/login",headers=headers)
-   #print(response.text.encode('utf8'))
-   result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+   result = get_page()
    user = result["user"]
    networks = []
    for network in result["networks"]:
@@ -46,12 +51,10 @@ def update_audio_token():
 
 def get_all_channels():
    channel_list = []
-   response = requests.post(f"{network_url}/login",headers=headers)
-   result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+   result = get_page()
    for network in result["networks"]:
       if network["name"] != "ClassicalRadio.com":
-         response = requests.post(f"{network['url']}/login",headers=headers)
-         result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
+         result = get_page()
          for channel in result["channels"]:
             if channel not in channel_list:
                channel_list.append(channel)
@@ -101,8 +104,9 @@ def download_track(track,channel,url,directory="tracks"):
 def get_tracks_by_channel_id(id):
    tracks = []
    epoch = time.time()
-   channel_url = f'{network_url}/_papi/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   channel_repsonse = requests.get(channel_url,headers=headers)
+   channel_url = f'https://api.audioaddict.com/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
+   scraper = cloudscraper.create_scraper()
+   channel_repsonse = scraper.get(channel_url)
    for track in json.loads(channel_repsonse.text)["tracks"]:
       tracks.append(track)
    return tracks
@@ -130,4 +134,4 @@ def generate_playlist(channel_id,channel_name,playlist_directory="playlists"):
 update_audio_token()
 
 if __name__ == "__main__":
-   print(get_all_channels())
+   print(get_tracks_by_channel_id("124"))
