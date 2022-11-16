@@ -6,7 +6,6 @@ from urllib.parse import parse_qs
 import datetime
 from datetime import timezone
 import os
-import cloudscraper
 
 
 
@@ -24,9 +23,9 @@ headers = {
     "Connection": "keep-alive"
 }
 
+
 def get_page():
- scraper = cloudscraper.create_scraper()
- response = scraper.get(f"{network_url}/login")
+ response = requests.get(f"{network_url}/login",headers=headers)
  result = json.loads(response.text.split("di.app.start(")[1].split(");")[0])
  return result
 
@@ -105,8 +104,7 @@ def get_tracks_by_channel_id(id):
    tracks = []
    epoch = time.time()
    channel_url = f'https://api.audioaddict.com/v1/di/routines/channel/{id}?tune_in=false&audio_token={audio_token}&_={epoch}'
-   scraper = cloudscraper.create_scraper()
-   channel_repsonse = scraper.get(channel_url)
+   channel_repsonse = requests.get(channel_url,headers=headers)
    for track in json.loads(channel_repsonse.text)["tracks"]:
       tracks.append(track)
    return tracks
