@@ -146,9 +146,9 @@ def play_previous_track():
     global player
     global current_track
     global current_track_index
-    current_track_index -= 1
-    log("Playing previous track")
-    if current_track_index > 0: 
+    if current_track_index > 0:
+        current_track_index -= 1
+        log("Playing previous track","info") 
         if difm.is_url_expired(list(current_tracklist.items())[current_track_index][1]):
             log("Track is expired","info")
             update_current_tracks()
@@ -160,6 +160,8 @@ def play_previous_track():
         player.play_audio(list(current_tracklist.items())[current_track_index][1])
         current_track = list(current_tracklist.items())[current_track_index][0]
         draw_player()
+    else:
+        log("No previous track available","error")
 
 def config_menu():
     quit_config = False
