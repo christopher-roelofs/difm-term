@@ -13,7 +13,7 @@ The player requires VLC media player (python-vlc). Download the correct version 
 Main Menu
 
 ![image](https://user-images.githubusercontent.com/1930031/137034125-149569c6-6383-40aa-b34e-bb37f99e11b0.png)
-git
+
 All Channels
 
 ![image](https://user-images.githubusercontent.com/1930031/135911658-01198387-d4f3-4f42-b8ce-e51e67aee601.png)
