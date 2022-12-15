@@ -2,8 +2,6 @@
 # difm-term
 Unofficial player and playlist generator for DI.FM. This only has access to quality/channels available to guests.
 
-## **Experimental update using cloudscraper**
-
 **If you like DI.FM, sign up for a premium account!**
 
 **Player**
